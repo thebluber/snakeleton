@@ -41,14 +41,9 @@
             this.current_dir = this.next_dir; 
           },
           changePic: function(pic){
-            if (this.pic == pic) {
+              this.removeComponent(this.pic)
+                  .addComponent(pic);
               return this;
-            } else {
-                this.removeComponent(this.pic)
-                    .addComponent(pic);
-                return this;
-              }
-          
           },
 
       });
@@ -126,10 +121,10 @@ window.onload = function(){
       var t1 = Crafty.e("snake").makeBlock(100, 100, "e", "e", "head2");
       var t2 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE, 100, "e", "e", "neckright2");
       var t3 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 2, 100, "e", "e", "bodyleft2");
-      var t4 = Crafty.e("snake").makeBlock(100 -BLOCKSIZE * 3, 100, "e", "e", "bodyright2");
+      var t4 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 3, 100, "e", "e", "bodyright2");
       var t5 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 4, 100, "e", "e", "bodyleft2");
-      var t6 = Crafty.e("snake").makeBlock(100 -BLOCKSIZE * 5, 100, "e", "e", "bodyright2");
-      var t7 = Crafty.e("snake").makeBlock(100 -BLOCKSIZE * 6, 100, "e", "e", "tailright2");
+      var t6 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 5, 100, "e", "e", "bodyright2");
+      var t7 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 6, 100, "e", "e", "tailright2");
       var snake = Crafty.e("2D,Canvas")
                   .attr({blocks:[t1,t2,t3,t4,t5,t6,t7]})
                   .bind("timerTick", function(e){
