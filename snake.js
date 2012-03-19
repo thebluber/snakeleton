@@ -109,7 +109,9 @@ window.onload = function(){
                     var bite = this.blocks.slice(1).reduce(function(res, t){
                       return res || t.intersect(head.x, head.y, BLOCKSIZE, BLOCKSIZE);
                       }, false); 
-                    
+                    if (Timer.timeUp()){
+
+                    }; 
                     if (eatFeed) {
                       feed.destroy();
                       feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0,1)]);
