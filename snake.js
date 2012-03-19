@@ -134,21 +134,25 @@ window.onload = function(){
                     switch(e.keyCode){
                       case Crafty.keys.RIGHT_ARROW:
                         if (head.current_dir != "w"){
+                          head.current_dir = "e";
                           head.next_dir = "e";
                         }
                       break;
                       case Crafty.keys.LEFT_ARROW:
                         if (head.current_dir != "e"){
+                          head.current_dir = "w";
                           head.next_dir = "w";
                         }
                       break;
                       case Crafty.keys.UP_ARROW:
                         if (head.current_dir != "s"){
+                          head.current_dir = "n";
                           head.next_dir = "n";
                         }
                       break;
                       case Crafty.keys.DOWN_ARROW:
                         if (head.current_dir != "n"){
+                          head.current_dir = "s";
                           head.next_dir = "s";
                         }
                       break;
@@ -163,6 +167,9 @@ window.onload = function(){
                         return;
                       break;
                     } 
+                    for (var i = 1; i < this.blocks.length; i++){
+                      this.blocks[i].next_dir = this.blocks[i-1].current_dir;
+                    };
                   });
                   
   };      
