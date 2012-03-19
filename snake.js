@@ -120,8 +120,9 @@ window.onload = function(){
                       //adjust tail
                       lastBody = this.blocks[this.blocks.length - 2];
                       var tail = this.blocks[this.blocks.length - 1];
-                      tail.next_dir = lastBody.current_dir;
-                      
+                      var pic = tail.pic;
+                      tail.destroy();
+                      this.blocks[this.blocks.length - 1] = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, pic);
                       
                     };
                       
