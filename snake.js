@@ -1,54 +1,3 @@
-    //snake
-      Crafty.c("snake", {
-          init: function(){
-            this.addComponent("2D,Canvas");
-            this.attr({w: BLOCKSIZE, h: BLOCKSIZE});  
-          },
-          makeBlock: function(x, y, current_dir, next_dir, pic){
-            this.addComponent(pic)
-                .attr({x: x, y: y, current_dir: current_dir, next_dir: next_dir, pic: pic, curve: false});
-            return this;
-          }, 
-          moveTo: function(){
-            if (this.current_dir != this.next_dir){
-              this.curve = true;
-            } else {
-              this.curve = false;
-            };
-
-            var pic = this.pic.match(/[^0-9]+/)[0];
-            console.log(pic);
-            switch(this.next_dir){
-              case "n":
-                this.changePic(pic + 1);
-              break;
-              case "e":
-                this.changePic(pic + 2);
-                console.log(this.pic);
-              break;
-              case "s":
-                this.changePic(pic + 3);
-              break;
-              case "w":
-                this.changePic(pic + 4);
-              break;
-              default:
-                return;
-              break;
-            };
-
-            this.move(this.current_dir, BLOCKSIZE);
-            this.current_dir = this.next_dir; 
-          },
-          changePic: function(pic){
-              this.removeComponent(this.pic)
-                  .addComponent(pic);
-              return this;
-          },
-
-      });
-
-
 window.onload = function(){
     BLOCKSIZE = 20;
     WIDTH = 44 * BLOCKSIZE;
@@ -57,7 +6,7 @@ window.onload = function(){
     Crafty.init(WIDTH, HEIGHT);
     //loading
       Crafty.scene("loading", function(){
-        Crafty.load(["img/snakeleton.png"], function() {
+        Crafty.load(["img/snakeleton.png", "img/kaninchen.png", "img/bigsteak.png"], function() {
           Crafty.scene("main");
         });
         Crafty.background("#000");
@@ -91,8 +40,8 @@ window.onload = function(){
       bodyright3: [1, 4],
       bodyright4: [3, 5],
       curveWN: [0, 7],
-      curveNW: [2, 8],
-      curveSE: [0, 8],
+      curveNW: [0, 8],
+      curveSE: [2, 8],
       curveES: [2, 7],
       curveSW: [1, 8],
       curveWS: [3, 7],
@@ -107,6 +56,13 @@ window.onload = function(){
       tailright3: [0, 9],
       tailright4: [2, 9]
     })
+    //feed
+    Crafty.sprite(40, "img/kaninchen.png", {
+      rabbit: [0, 0]
+    });
+    Crafty.sprite(40, "img/bigsteak.png", {
+      steak: [0, 0]
+    })
 
   //Initialize Timer
     var Timer = Crafty.e("Timer").resume(); 
@@ -117,33 +73,58 @@ window.onload = function(){
       start();
     });
     var start = function(){
+      var feeds = ["rabbit", "steak"];
+      var feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, 1)]);
       //create a snake
       var t1 = Crafty.e("snake").makeBlock(100, 100, "e", "e", "head2");
-      var t2 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE, 100, "e", "e", "neckright2");
-      var t3 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 2, 100, "e", "e", "bodyleft2");
-      var t4 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 3, 100, "e", "e", "bodyright2");
-      var t5 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 4, 100, "e", "e", "bodyleft2");
-      var t6 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 5, 100, "e", "e", "bodyright2");
-      var t7 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 6, 100, "e", "e", "tailright2");
+      var t2 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE, 100, "e", "e", "neckleft2");
+      var t3 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 2, 100, "e", "e", "bodyright2");
+      var t4 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 3, 100, "e", "e", "bodyleft2");
+      var t5 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 4, 100, "e", "e", "bodyright2");
+      var t6 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 5, 100, "e", "e", "bodyleft2");
+      var t7 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 6, 100, "e", "e", "tailleft2");
       var snake = Crafty.e("2D,Canvas")
                   .attr({blocks:[t1,t2,t3,t4,t5,t6,t7]})
                   .bind("timerTick", function(e){
-                    console.log("timerTick");
                     var head = this.blocks[0];
                     //move snake
                     head.moveTo();
                     for (var i = 1; i < this.blocks.length; i++){
                       this.blocks[i].moveTo();
+                      this.blocks[i].animation();
                       this.blocks[i].next_dir = this.blocks[i-1].current_dir;
+                      
                     };
-                    //add curve picture
-                    for (var i = 2; i < this.blocks.length - 1; i++){
-                      if (this.blocks[i].curve){
-                        var dir = this.blocks[i].current_dir + this.blocks[i].next_dir
-                         return this.blocks[i].changePic("curve" + dir.toUpperCase());
-                      };
-                    };
+                    //is the snake within the boundary
+                    var minBoundary = {x: 0, y: 0};
+                    var maxBoundary = {x: WIDTH, y: HEIGHT};
+                    var isWithin = this.blocks.reduce(function(res, e){
+
+                                      return res && e.within(minBoundary.x, minBoundary.y, maxBoundary.x, maxBoundary.y)
+
+                                   });
+                    //collision check: feed and snake
+                    var eatFeed = head.intersect(feed.x, feed.y, feed.w, feed.h);
+                    //collision check: head and tail
+                    var bite = this.blocks.slice(1).reduce(function(res, t){
+                      return res || t.intersect(head.x, head.y, BLOCKSIZE, BLOCKSIZE);
+                      }, false); 
                     
+                    if (eatFeed) {
+                      feed.destroy();
+                      feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0,1)]);
+                      var lastBody = this.blocks[this.blocks.length - 2];
+                      var newBody = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, lastBody.pic);
+                      this.blocks.splice(this.blocks.length - 1, 0, newBody);
+                      console.log(this.blocks.length);
+                      //adjust tail
+                      lastBody = this.blocks[this.blocks.length - 2];
+                      var tail = this.blocks[this.blocks.length - 1];
+                      tail.next_dir = lastBody.current_dir;
+                      
+                      
+                    };
+                      
                   })
                   .bind('KeyDown', function(e){
                     var head = this.blocks[0];

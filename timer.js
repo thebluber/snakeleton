@@ -5,7 +5,7 @@
  *
  * */
 
-    var EVERY_SECONDS = 200;
+    var EVERY_SECONDS = 100;
     Crafty.c('Timer', { 
         f            : EVERY_SECONDS
       , STOP         : true
@@ -40,7 +40,16 @@
           this.STOP = false;
           this.updateClock();
           return this;
-        }  
+        }
+      , timeUp: function(){
+          if (this.duration <= 0){
+            this.duration = DURATION;
+            return true;
+          } else {
+            this.duration -= 1;
+            return false;
+          }
+        } 
   
    });
 
