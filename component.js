@@ -72,7 +72,7 @@
   //feed
   Crafty.c("feed", {
     init: function(){
-      this.addComponent("2D, Canvas");
+      this.addComponent("2D, Canvas, Tween");
     },
     makeFeed: function(type){
       var max = {x: Crafty.viewport.width - 40, y: Crafty.viewport.height - 40};
@@ -82,4 +82,7 @@
           .addComponent(type);
       return this;
     },
+    fadeOut: function(){
+      this.tween({alpha: 0.0}, 10);
+    }
   });

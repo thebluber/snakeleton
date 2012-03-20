@@ -6,7 +6,7 @@ window.onload = function(){
     Crafty.init(WIDTH, HEIGHT);
     //loading
       Crafty.scene("loading", function(){
-        Crafty.load(["img/snakeleton.png", "img/kaninchen.png", "img/bigsteak.png"], function() {
+        Crafty.load(["img/sssssnakeleton.png","img/snakeleton.png", "img/kaninchen.png", "img/steak.png", "img/herz.png", "img/herz_sw.png"], function() {
           Crafty.scene("main");
         });
         Crafty.background("#000");
@@ -60,9 +60,16 @@ window.onload = function(){
     Crafty.sprite(40, "img/kaninchen.png", {
       rabbit: [0, 0]
     });
-    Crafty.sprite(40, "img/bigsteak.png", {
+    Crafty.sprite(20, "img/steak.png", {
       steak: [0, 0]
-    })
+    });
+    //lives
+    Crafty.sprite(20, "img/herz.png", {
+      heart: [0, 0]
+    });
+    Crafty.sprite(20, "img/herz_sw.png", {
+      noHeart: [0, 0]
+    });
 
   //Initialize Timer
     var Timer = Crafty.e("Timer").resume(); 
@@ -76,16 +83,65 @@ window.onload = function(){
       var feeds = ["rabbit", "steak"];
       var feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, 1)]);
       //create a snake
-      var t1 = Crafty.e("snake").makeBlock(100, 100, "e", "e", "head2");
-      var t2 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE, 100, "e", "e", "neckleft2");
-      var t3 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 2, 100, "e", "e", "bodyright2");
-      var t4 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 3, 100, "e", "e", "bodyleft2");
-      var t5 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 4, 100, "e", "e", "bodyright2");
-      var t6 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 5, 100, "e", "e", "bodyleft2");
-      var t7 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 6, 100, "e", "e", "tailleft2");
+      var t1 = Crafty.e("snake").makeBlock(150, 100, "e", "e", "head2");
+      var t2 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE, 100, "e", "e", "neckleft2");
+      var t3 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 2, 100, "e", "e", "bodyright2");
+      var t4 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 3, 100, "e", "e", "bodyleft2");
+      var t5 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 4, 100, "e", "e", "bodyright2");
+      var t6 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 5, 100, "e", "e", "bodyleft2");
+      var t7 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 6, 100, "e", "e", "tailleft2");
+      //create a infobar for score
+      var infoBar = Crafty.e("2D, Canvas, Color, Tween")
+                          .attr({x: 0, y: 0, w: WIDTH, h: 30})
+                          .tween({alpha: 0.5}, 0)
+                          .color('rgb(100, 100, 100)');
+      //lives
+      var l = Crafty.e("2D, DOM, Text")
+                    .attr({x: 5, y: 5, w: 55, h: 20})
+                    .text("LIVES: ")
+                    .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"})
+      var l1 = Crafty.e("2D, Canvas, heart")
+                     .attr({x: l.x + l.w, y: 5, w: 20, h: 20});
+      var l2 = Crafty.e("2D, Canvas, heart")
+                     .attr({x: l1.x + l1.w, y: 5, w: 20, h: 20});
+      var l3 = Crafty.e("2D, Canvas, heart")
+                     .attr({x: l2.x + l2.w, y: 5, w: 20, h: 20});
+      var lives = [l1, l2, l3];
+      var updateLives = function(snake){
+        var diff = lives.length - snake.lives;
+        if (diff != 0) {
+          lives.slice(snake.lives, lives.length).map(function(l){
+            l.removeComponent("heart")
+             .addComponent("noHeart");
+          });  
+        }
+      }; 
+
+      //inventory
+      var title = Crafty.e("2D, DOM, Text")
+                    .attr({x: l3.x + l3.w + 5, y: 5, w: 120, h: 20})
+                    .text("INVENTORY: ")
+                    .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
+                    
+      var steakAmount = Crafty.e("2D, DOM, Text")
+                              .attr({x: title.x + title.w, y: 5, w: 25, h: 20})
+                              .text("0 ")
+                              .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
+      var steak = Crafty.e("2D, Canvas, steak")
+                        .attr({x: steakAmount.x + steakAmount.w, y: 5, w: 20, h: 20});
+      var rabbitAmount = Crafty.e("2D, DOM, Text")
+                              .attr({x: steak.x + steak.w, y: 5, w: 25, h: 20})
+                              .text("0 ")
+                              .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
+      var rabbit = Crafty.e("2D, Canvas, rabbit")
+                         .attr({x: rabbitAmount.x + rabbitAmount.w, y: 0, w: 30, h: 30});
+
+
       var snake = Crafty.e("2D,Canvas")
-                  .attr({blocks:[t1,t2,t3,t4,t5,t6,t7]})
+                  .attr({blocks: [t1,t2,t3,t4,t5,t6,t7], lives: 3, inventory: {"rabbit": 0, "steak": 0}})
                   .bind("timerTick", function(e){
+                    //update lives
+                    updateLives(this);
                     var head = this.blocks[0];
                     //move snake
                     head.moveTo();
@@ -96,38 +152,90 @@ window.onload = function(){
                       
                     };
                     //is the snake within the boundary
-                    var minBoundary = {x: 0, y: 0};
+                    var minBoundary = {x: 0, y: infoBar.h};
                     var maxBoundary = {x: WIDTH, y: HEIGHT};
-                    var isWithin = this.blocks.reduce(function(res, e){
-
-                                      return res && e.within(minBoundary.x, minBoundary.y, maxBoundary.x, maxBoundary.y)
-
-                                   });
+                    var isWithin = head.within(minBoundary.x, minBoundary.y, maxBoundary.x, maxBoundary.y);
                     //collision check: feed and snake
                     var eatFeed = head.intersect(feed.x, feed.y, feed.w, feed.h);
                     //collision check: head and tail
                     var bite = this.blocks.slice(1).reduce(function(res, t){
                       return res || t.intersect(head.x, head.y, BLOCKSIZE, BLOCKSIZE);
                       }, false); 
-                    if (Timer.timeUp()){
+                
 
-                    }; 
-                    if (eatFeed) {
+                    //game
+                    if (this.lives <= 0) {
+                      this.blocks.map(function(b){b.destroy()});
                       feed.destroy();
-                      feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0,1)]);
-                      var lastBody = this.blocks[this.blocks.length - 2];
-                      var newBody = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, lastBody.pic);
-                      this.blocks.splice(this.blocks.length - 1, 0, newBody);
-                      console.log(this.blocks.length);
-                      //adjust tail
-                      lastBody = this.blocks[this.blocks.length - 2];
-                      var tail = this.blocks[this.blocks.length - 1];
-                      var pic = tail.pic;
-                      tail.destroy();
-                      this.blocks[this.blocks.length - 1] = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, pic);
-                      
+                      this.unbind("timerTick");
+                      var background = Crafty.e("2D, DOM, Tween, Image")
+                                           .image("img/sssssnakeleton.png")
+                                           .attr({x: 0, y: -5, w: WIDTH, h: HEIGHT})
+                                           .tween({alpha: 0.5}, 5);
+                      var gameOver = Crafty.e("2D, DOM, Text, Tween")
+                                           .attr({x: 20, y: 50, w: WIDTH * 0.7, h: HEIGHT, fadeOut: false})
+                                           .text("GAME OVER")
+                                           .css({"color": "white", "text-align": "left", "font-style": "bold", "font-family": "Impact", "font-size": "900%"})
+                                           .bind("timerTick", function(e){
+                                              if (this.fadeOut) {
+                                                this.tween({alpha: 1.0}, 5);
+                                                this.fadeOut = false;
+                                              } else {
+                                                this.tween({alpha: 0.0}, 10);
+                                                this.fadeOut = true;
+                                              }
+                                           })
+                                      
                     };
+
+                    if (isWithin) {
+                      //feed
+                      if (eatFeed) {
+                        //update score
+                        this.inventory[feed.type] += 1;
+                        steakAmount.text(this.inventory.steak + " ");
+                        rabbitAmount.text(this.inventory.rabbit + " ");
+      
+                        feed.fadeOut();
+                        Timer.resetDuration();
+                        feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0,1)]);
+                        var lastBody = this.blocks[this.blocks.length - 2];
+                        var newBody = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, lastBody.pic);
+                        this.blocks.splice(this.blocks.length - 1, 0, newBody);
+                        //adjust tail
+                        lastBody = this.blocks[this.blocks.length - 2];
+                        var tail = this.blocks[this.blocks.length - 1];
+                        var pic = tail.pic;
+                        tail.destroy();
+                        this.blocks[this.blocks.length - 1] = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, pic);
                       
+                      };
+
+                      //feed timeup
+                      if (Timer.timeOut()){
+                        feed.fadeOut();
+                        feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, 1)]);
+                      };
+        
+                      //collision with self
+                      if (bite) { this.lives -= 1;}
+                    } else {
+                      this.lives -= 1;
+                      feed.fadeOut();
+                      feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, 1)]);
+                      Timer.resetDuration();
+              
+                      //create a new snake
+                      var t1 = Crafty.e("snake").makeBlock(100, 100, "e", "e", "head2");
+                      var t2 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE, 100, "e", "e", "neckleft2");
+                      var t3 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 2, 100, "e", "e", "bodyright2");
+                      var t4 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 3, 100, "e", "e", "bodyleft2");
+                      var t5 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 4, 100, "e", "e", "bodyright2");
+                      var t6 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 5, 100, "e", "e", "bodyleft2");
+                      var t7 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 6, 100, "e", "e", "tailleft2");
+                      this.blocks.map(function(b){b.destroy()});
+                      this.blocks = [t1, t2, t3, t4, t5, t6, t7];
+                    }    
                   })
                   .bind('KeyDown', function(e){
                     var head = this.blocks[0];

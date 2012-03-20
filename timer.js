@@ -4,10 +4,11 @@
  *
  *
  * */
-
+    var DURATION = 60;
     var EVERY_SECONDS = 100;
     Crafty.c('Timer', { 
         f            : EVERY_SECONDS
+      , duration     : DURATION
       , STOP         : true
       , name         : ''
    
@@ -38,17 +39,25 @@
         }
       , resume: function(){
           this.STOP = false;
+          this.f = EVERY_SECONDS;
           this.updateClock();
           return this;
         }
-      , timeUp: function(){
-          if (this.duration <= 0){
+      , setTimer: function(time){
+          this.f = time;
+          return this;
+        }
+      , timeOut: function(){
+          if (this.duration == 0){
             this.duration = DURATION;
             return true;
           } else {
             this.duration -= 1;
             return false;
           }
+        }
+      , resetDuration: function(){
+          this.duration = DURATION;
         } 
   
    });
