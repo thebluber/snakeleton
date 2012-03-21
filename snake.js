@@ -6,13 +6,13 @@ window.onload = function(){
     Crafty.init(WIDTH, HEIGHT);
     //loading
       Crafty.scene("loading", function(){
-        Crafty.load(["img/sssssnakeleton.png","img/snakeleton.png", "img/kaninchen.png", "img/steak.png", "img/herz.png", "img/herz_sw.png"], function() {
+        Crafty.load(["img/achievement.png","img/igel.png","img/sssssnakeleton.png","img/snakeleton.png", "img/kaninchen.png", "img/steak.png", "img/herz.png", "img/herz_sw.png"], function() {
           Crafty.scene("main");
         });
         Crafty.background("#000");
         Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 150, y: 120 })
               .text("Loading")
-              .css({ "text-align": "center" });
+              .css({ "text-align": "center", "color": "white"});
          
       });
     
@@ -70,6 +70,10 @@ window.onload = function(){
     Crafty.sprite(20, "img/herz_sw.png", {
       noHeart: [0, 0]
     });
+    //hedgehog
+    Crafty.sprite(20, "img/igel.png", {
+      hedgehog: [0, 0]
+    });
 
   //Initialize Timer
     var Timer = Crafty.e("Timer").resume(); 
@@ -115,7 +119,6 @@ window.onload = function(){
         }
       }; 
 
-      //inventory
       var title = Crafty.e("2D, DOM, Text")
                     .attr({x: l3.x + l3.w + 5, y: 5, w: 120, h: 20})
                     .text("INVENTORY: ")
@@ -133,11 +136,31 @@ window.onload = function(){
                               .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
       var rabbit = Crafty.e("2D, Canvas, rabbit")
                          .attr({x: rabbitAmount.x + rabbitAmount.w, y: 0, w: 30, h: 30});
-      //some feeds
+      //inventory update
+      var inventory = function(item){
+          
+      };
+/*      //some feeds
       var feeds = ["rabbit", "steak"];
       var makeFeed = function(){
-        return Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, feeds.length - 1)]);
+        var feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, feeds.length - 1)]);
+        feed.setTimeout();
+        return feed;
       }
+*/
+      var regenerateFeed = function() {
+        var feeds = ["rabbit", "steak"];
+        var rand = Math.floor(Math.random() * 2);
+        var feed = Crafty.e('feed').makeFeed(feeds[rand]);
+        var randTime = Math.random() * 1000;
+
+        window.setTimeout(function() {
+          feed.fadeOut();
+          regenerateFeed();
+        }, 5000   + randTime);
+      
+      };
+
       //collision check
       var collide = function(feed, snake){
         var head = snake.blocks[0];
@@ -158,9 +181,7 @@ window.onload = function(){
           var pic = tail.pic;
           tail.destroy();
           snake.blocks[snake.blocks.length - 1] = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, pic);
-        } else {
-         return feed;
-        }
+        } 
     }
 
 
@@ -185,18 +206,14 @@ window.onload = function(){
                     var isWithin = head.within(minBoundary.x, minBoundary.y, maxBoundary.x, maxBoundary.y);
                     //collision check: head and tail
                     var bite = head.hit("snake"); 
-                    //make some feeds
+                   //make some feeds
                     if (Crafty("feed").length == 0){
-                      var randAmount = Crafty.math.randomInt(2, 8);
+                      var randAmount = Crafty.math.randomInt(2, 6);
                       for (var i = 0; i < randAmount; i++){
-                        makeFeed();
+                        regenerateFeed();
                       };
-                      var feeds = Crafty("feed");
-                      for (var i = 0; i < feeds.length; i++){
-                        Crafty(feeds[i]).setTimeout();
-                      }
                     };
-
+                   
                     //game
                     if (this.lives <= 0) {
                       this.blocks.map(function(b){b.destroy()});

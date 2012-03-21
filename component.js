@@ -78,8 +78,7 @@
       var max = {x: Crafty.viewport.width - 40, y: Crafty.viewport.height - 40};
       var randX = Crafty.math.randomInt(40, max.x);
       var randY = Crafty.math.randomInt(40, max.y);
-      var timeOut = Crafty.math.randomInt(1, 10) * 1000;
-      this.attr({x: randX, y: randY, w: 20, h: 20, type: type, timeOut: timeOut})
+      this.attr({x: randX, y: randY, w: 20, h: 20, type: type})
           .addComponent(type);
       if (this.hit("snake") || this.hit("feed")) { return this.makeFeed(type);};
       
@@ -89,10 +88,24 @@
       this.tween({alpha: 0.0}, 10)
           .delay(function(){this.destroy()}, 10);
     },
-    setTimeout: function(){
-      var that = this;
-      window.setTimeout(function(){
-        that.fadeOut();
-      }, that.timeOut);
-    }
   });
+  //achievements
+  Crafty.c('Achievement',{
+      init: function(){
+        this._image = Crafty.e('2D, DOM, Image, Tween').image('img/achievement.png').attr({x: 30, y: 30});
+        this._text = "Set the Text";
+        this._center = WIDTH / 2 - ((this._text.length * 15) / 2);
+        this._textElement = Crafty.e('2D, DOM, Text, Tween').text(this._text).textColor('#dacfca').attr({x: this._center, y: 110, w:400}).textFont({weight: 'bold', size: '20px', family: 'Arial'});
+
+        this._image.tween({alpha: 0.0}, 200);
+        this._textElement.tween({alpha: 0.0}, 200);
+      },
+
+      text: function(newText) {
+        this._text = newText;
+        this._center = WIDTH / 2 - ((this._text.length * 12) / 2) ;
+        this._textElement.attr({x: this._center}).text(this._text);
+      }
+     
+    });
+
