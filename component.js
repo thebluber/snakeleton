@@ -2,7 +2,7 @@
     //snake
       Crafty.c("snake", {
           init: function(){
-            this.addComponent("2D,Canvas");
+            this.addComponent("2D,Canvas,Collision");
             this.attr({w: BLOCKSIZE, h: BLOCKSIZE});  
           },
           makeBlock: function(x, y, current_dir, next_dir, pic){
@@ -72,17 +72,27 @@
   //feed
   Crafty.c("feed", {
     init: function(){
-      this.addComponent("2D, Canvas, Tween");
+      this.addComponent("2D, Canvas, Tween, Collision");
     },
     makeFeed: function(type){
       var max = {x: Crafty.viewport.width - 40, y: Crafty.viewport.height - 40};
       var randX = Crafty.math.randomInt(40, max.x);
       var randY = Crafty.math.randomInt(40, max.y);
-      this.attr({x: randX, y: randY, w: 20, h: 20, type: type})
+      var timeOut = Crafty.math.randomInt(1, 10) * 1000;
+      this.attr({x: randX, y: randY, w: 20, h: 20, type: type, timeOut: timeOut})
           .addComponent(type);
+      if (this.hit("snake") || this.hit("feed")) { return this.makeFeed(type);};
+      
       return this;
     },
     fadeOut: function(){
-      this.tween({alpha: 0.0}, 10);
+      this.tween({alpha: 0.0}, 10)
+          .delay(function(){this.destroy()}, 10);
+    },
+    setTimeout: function(){
+      var that = this;
+      window.setTimeout(function(){
+        that.fadeOut();
+      }, that.timeOut);
     }
   });

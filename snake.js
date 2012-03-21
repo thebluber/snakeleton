@@ -80,10 +80,8 @@ window.onload = function(){
       start();
     });
     var start = function(){
-      var feeds = ["rabbit", "steak"];
-      var feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, 1)]);
       //create a snake
-      var t1 = Crafty.e("snake").makeBlock(150, 100, "e", "e", "head2");
+      var t1 = Crafty.e("snake").makeBlock(150, 100, "e", "e", "head2").addComponent("head");
       var t2 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE, 100, "e", "e", "neckleft2");
       var t3 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 2, 100, "e", "e", "bodyright2");
       var t4 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 3, 100, "e", "e", "bodyleft2");
@@ -135,11 +133,41 @@ window.onload = function(){
                               .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
       var rabbit = Crafty.e("2D, Canvas, rabbit")
                          .attr({x: rabbitAmount.x + rabbitAmount.w, y: 0, w: 30, h: 30});
+      //some feeds
+      var feeds = ["rabbit", "steak"];
+      var makeFeed = function(){
+        return Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, feeds.length - 1)]);
+      }
+      //collision check
+      var collide = function(feed, snake){
+        var head = snake.blocks[0];
+        if (feed.hit("head")) {
+          //update score
+          snake.inventory[feed.type] += 1;
+          steakAmount.text(snake.inventory.steak + " ");
+          rabbitAmount.text(snake.inventory.rabbit + " ");
+          //disappear
+          feed.fadeOut();
+          //snake grows
+          var lastBody = snake.blocks[snake.blocks.length - 2];
+          var newBody = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, lastBody.pic);
+          snake.blocks.splice(snake.blocks.length - 1, 0, newBody);
+          //adjust tail
+          lastBody = snake.blocks[snake.blocks.length - 2];
+          var tail = snake.blocks[snake.blocks.length - 1];
+          var pic = tail.pic;
+          tail.destroy();
+          snake.blocks[snake.blocks.length - 1] = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, pic);
+        } else {
+         return feed;
+        }
+    }
 
 
-      var snake = Crafty.e("2D,Canvas")
+      var snake = Crafty.e("2D,Canvas,Collision")
                   .attr({blocks: [t1,t2,t3,t4,t5,t6,t7], lives: 3, inventory: {"rabbit": 0, "steak": 0}})
                   .bind("timerTick", function(e){
+                    var that = this;
                     //update lives
                     updateLives(this);
                     var head = this.blocks[0];
@@ -155,18 +183,23 @@ window.onload = function(){
                     var minBoundary = {x: 0, y: infoBar.h};
                     var maxBoundary = {x: WIDTH, y: HEIGHT};
                     var isWithin = head.within(minBoundary.x, minBoundary.y, maxBoundary.x, maxBoundary.y);
-                    //collision check: feed and snake
-                    var eatFeed = head.intersect(feed.x, feed.y, feed.w, feed.h);
                     //collision check: head and tail
-                    var bite = this.blocks.slice(1).reduce(function(res, t){
-                      return res || t.intersect(head.x, head.y, BLOCKSIZE, BLOCKSIZE);
-                      }, false); 
-                
+                    var bite = head.hit("snake"); 
+                    //make some feeds
+                    if (Crafty("feed").length == 0){
+                      var randAmount = Crafty.math.randomInt(2, 8);
+                      for (var i = 0; i < randAmount; i++){
+                        makeFeed();
+                      };
+                      var feeds = Crafty("feed");
+                      for (var i = 0; i < feeds.length; i++){
+                        Crafty(feeds[i]).setTimeout();
+                      }
+                    };
 
                     //game
                     if (this.lives <= 0) {
                       this.blocks.map(function(b){b.destroy()});
-                      feed.destroy();
                       this.unbind("timerTick");
                       var background = Crafty.e("2D, DOM, Tween, Image")
                                            .image("img/sssssnakeleton.png")
@@ -189,42 +222,15 @@ window.onload = function(){
                     };
 
                     if (isWithin) {
-                      //feed
-                      if (eatFeed) {
-                        //update score
-                        this.inventory[feed.type] += 1;
-                        steakAmount.text(this.inventory.steak + " ");
-                        rabbitAmount.text(this.inventory.rabbit + " ");
-      
-                        feed.fadeOut();
-                        Timer.resetDuration();
-                        feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0,1)]);
-                        var lastBody = this.blocks[this.blocks.length - 2];
-                        var newBody = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, lastBody.pic);
-                        this.blocks.splice(this.blocks.length - 1, 0, newBody);
-                        //adjust tail
-                        lastBody = this.blocks[this.blocks.length - 2];
-                        var tail = this.blocks[this.blocks.length - 1];
-                        var pic = tail.pic;
-                        tail.destroy();
-                        this.blocks[this.blocks.length - 1] = Crafty.e("snake").makeBlock(lastBody.x, lastBody.y, "", lastBody.current_dir, pic);
-                      
+                      //collision against feed
+                      var feeds = Crafty("feed");
+                      for (var i = 0; i < feeds.length; i++){
+                        collide(Crafty(feeds[i]), that);
                       };
-
-                      //feed timeup
-                      if (Timer.timeOut()){
-                        feed.fadeOut();
-                        feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, 1)]);
-                      };
-        
-                      //collision with self
+                      //collision against self
                       if (bite) { this.lives -= 1;}
                     } else {
                       this.lives -= 1;
-                      feed.fadeOut();
-                      feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, 1)]);
-                      Timer.resetDuration();
-              
                       //create a new snake
                       var t1 = Crafty.e("snake").makeBlock(100, 100, "e", "e", "head2");
                       var t2 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE, 100, "e", "e", "neckleft2");
@@ -279,6 +285,7 @@ window.onload = function(){
                       this.blocks[i].next_dir = this.blocks[i-1].current_dir;
                     };
                   });
+      
                   
   };      
 }
