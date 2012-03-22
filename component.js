@@ -1,3 +1,16 @@
+    //inventory
+    Crafty.c("inventory", {
+      init: function(){
+        this.addComponent("2D,Canvas")
+      },
+      makeItem: function(x, y, type){
+        var amount = Crafty.e("2D, DOM, Text")
+                              .attr({x: title.x + title.w, y: 5, w: 25, h: 20})
+                              .text("0 ")
+                              .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
+          
+      }
+    });
 
     //snake
       Crafty.c("snake", {

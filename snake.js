@@ -75,8 +75,6 @@ window.onload = function(){
       hedgehog: [0, 0]
     });
 
-  //Initialize Timer
-    var Timer = Crafty.e("Timer").resume(); 
   
   //main scene
     Crafty.scene("main", function(){
@@ -84,6 +82,9 @@ window.onload = function(){
       start();
     });
     var start = function(){
+      //Initialize Timer
+      var Timer = Crafty.e("Timer").resume(); 
+      var GAMEOVER = false;
       //create a snake
       var t1 = Crafty.e("snake").makeBlock(150, 100, "e", "e", "head2").addComponent("head");
       var t2 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE, 100, "e", "e", "neckleft2");
@@ -119,7 +120,7 @@ window.onload = function(){
         }
       }; 
 
-      var title = Crafty.e("2D, DOM, Text")
+      var title = Crafty.e("2D, DOM, Text, info")
                     .attr({x: l3.x + l3.w + 5, y: 5, w: 120, h: 20})
                     .text("INVENTORY: ")
                     .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
@@ -138,27 +139,22 @@ window.onload = function(){
                          .attr({x: rabbitAmount.x + rabbitAmount.w, y: 0, w: 30, h: 30});
       //inventory update
       var inventory = function(item){
-          
+        var type     
       };
-/*      //some feeds
-      var feeds = ["rabbit", "steak"];
-      var makeFeed = function(){
-        var feed = Crafty.e("feed").makeFeed(feeds[Crafty.math.randomInt(0, feeds.length - 1)]);
-        feed.setTimeout();
-        return feed;
-      }
-*/
       var regenerateFeed = function() {
         var feeds = ["rabbit", "steak"];
         var rand = Math.floor(Math.random() * 2);
         var feed = Crafty.e('feed').makeFeed(feeds[rand]);
-        var randTime = Math.random() * 1000;
-
-        window.setTimeout(function() {
-          feed.fadeOut();
-          regenerateFeed();
-        }, 5000   + randTime);
-      
+        var randTime = Math.random() * 500;
+        if(GAMEOVER) {
+          Crafty("feed").destroy();
+        };
+        if(!Timer.STOP && !GAMEOVER){
+          window.setTimeout(function() {
+            feed.fadeOut();
+            regenerateFeed();
+          }, 5000   + randTime);
+        }
       };
 
       //collision check
@@ -206,18 +202,11 @@ window.onload = function(){
                     var isWithin = head.within(minBoundary.x, minBoundary.y, maxBoundary.x, maxBoundary.y);
                     //collision check: head and tail
                     var bite = head.hit("snake"); 
-                   //make some feeds
-                    if (Crafty("feed").length == 0){
-                      var randAmount = Crafty.math.randomInt(2, 6);
-                      for (var i = 0; i < randAmount; i++){
-                        regenerateFeed();
-                      };
-                    };
-                   
                     //game
-                    if (this.lives <= 0) {
+                    if (this.lives < 0) {
                       this.blocks.map(function(b){b.destroy()});
-                      this.unbind("timerTick");
+                      GAMEOVER = true;
+                      Crafty("feed").destroy();
                       var background = Crafty.e("2D, DOM, Tween, Image")
                                            .image("img/sssssnakeleton.png")
                                            .attr({x: 0, y: -5, w: WIDTH, h: HEIGHT})
@@ -231,14 +220,21 @@ window.onload = function(){
                                                 this.tween({alpha: 1.0}, 5);
                                                 this.fadeOut = false;
                                               } else {
-                                                this.tween({alpha: 0.0}, 10);
+                                                this.tween({alpha: 0.0}, 5);
                                                 this.fadeOut = true;
                                               }
-                                           })
-                                      
+                                           });
+                      this.unbind("timerTick");
                     };
 
                     if (isWithin) {
+                      //make some feeds
+                      if (Crafty("feed").length == 0 && !GAMEOVER){
+                        var randAmount = Crafty.math.randomInt(2, 6);
+                        for (var i = 0; i < randAmount; i++){
+                          regenerateFeed();
+                        };
+                      };
                       //collision against feed
                       var feeds = Crafty("feed");
                       for (var i = 0; i < feeds.length; i++){
@@ -249,7 +245,7 @@ window.onload = function(){
                     } else {
                       this.lives -= 1;
                       //create a new snake
-                      var t1 = Crafty.e("snake").makeBlock(100, 100, "e", "e", "head2");
+                      var t1 = Crafty.e("snake").makeBlock(100, 100, "e", "e", "head2").addComponent("head");
                       var t2 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE, 100, "e", "e", "neckleft2");
                       var t3 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 2, 100, "e", "e", "bodyright2");
                       var t4 = Crafty.e("snake").makeBlock(100 - BLOCKSIZE * 3, 100, "e", "e", "bodyleft2");
