@@ -71,7 +71,7 @@ window.onload = function(){
       noHeart: [0, 0]
     });
     //hedgehog
-    Crafty.sprite(20, "img/igel.png", {
+    Crafty.sprite(40, "img/igel.png", {
       hedgehog: [0, 0]
     });
 
@@ -127,10 +127,10 @@ window.onload = function(){
       Crafty.e("inventory").attr({item: title});             
       
       //generate feeds 
-      var feeds = ["rabbit", "steak"];
+      var FEEDS = ["rabbit", "steak"];
       var regenerateFeed = function() {
-        var rand = Math.floor(Math.random() * 2);
-        var feed = Crafty.e('feed').makeFeed(feeds[rand]);
+        var rand = Math.floor(Math.random() * FEEDS.length);
+        var feed = Crafty.e('feed').makeFeed(FEEDS[rand]);
         var randTime = Math.random() * 500;
         if(GAMEOVER) {
           Crafty("feed").destroy();
@@ -160,6 +160,8 @@ window.onload = function(){
               Crafty(inventory[i]).update(feed.type, snake.inventory[feed.type]);
             };
           } else {
+            //update snake inventory list
+            snake.inventory[feed.type] = 0;
             var lastItem = Crafty(inventory[inventory.length - 1]);
             Crafty.e("inventory").makeItem(lastItem.item.x + lastItem.item.w + 25, feed.type);
             //trigger achievement
@@ -232,19 +234,27 @@ window.onload = function(){
 
                     if (isWithin) {
                       //make some feeds
-                      if (Crafty("feed").length == 0 && !GAMEOVER){
+                      if (Crafty("feed").length == 0 && !GAMEOVER && !Timer.STOP){
                         var randAmount = Crafty.math.randomInt(2, 6);
                         for (var i = 0; i < randAmount; i++){
                           regenerateFeed();
                         };
                       };
+                      
                       //collision against feed
                       var feeds = Crafty("feed");
                       for (var i = 0; i < feeds.length; i++){
                         collide(Crafty(feeds[i]), that);
                       };
                       //collision against self
-                      if (bite) { this.lives -= 1;};
+                      if (bite) { 
+                        Timer.stop();
+                        this.delay(function(){
+                            this.lives -= 1;
+                            Timer.resume();
+                            }, 1000);
+                        
+                      };
                       //achievements
                       var steakText = this.inventory.steak + "th " + "STEAK!"
                       if (!achievements[steakText] && this.inventory.steak != 0 && this.inventory.steak % 30 == 0){
@@ -252,9 +262,20 @@ window.onload = function(){
                         Crafty.e("Achievement").text(steakText);
                         if (this.lives < 3){
                           this.lives += 1;
+                          this.inventory.steak = 0;
                           return Crafty(Crafty("noHeart")[0]).removeComponent("noHeart").addComponent("heart");
                         }
-                      }
+                      };
+                      //hedgehog appears
+                      var hedgehogText = "NOOO A HEDGEHOG!"
+                      if (this.inventory.steak + this.inventory.rabbit == 1 && !achievements[hedgehogText]){
+                          Crafty.e("Achievement").text(hedgehogText);
+                          achievements[hedgehogText] = true;
+                          if (FEEDS.indexOf("hedgehog") == -1){
+                            FEEDS.push("hedgehog");
+                          }
+                      };
+                      console.log(FEEDS);
                     } else {
                       this.lives -= 1;
                       //create a new snake

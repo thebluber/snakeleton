@@ -122,7 +122,6 @@
       init: function(){
         this._image = Crafty.e('2D, DOM, Image, Tween').image('img/achievement.png');
         this._image.attr({x: (WIDTH / 2) - (this._image.w / 2), y: 30});
-        console.log(this._image.x);
         this._text = "Set the Text";
         this._center = WIDTH / 2 - ((this._text.length * 15) / 2);
         this._textElement = Crafty.e('2D, DOM, Text, Tween').text(this._text).textColor('#dacfca').attr({x: this._center, y: 110, w:400});
