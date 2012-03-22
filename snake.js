@@ -248,6 +248,16 @@ window.onload = function(){
                       };
                       //collision against self
                       if (bite) { 
+                        //create a new snake
+                        this.blocks.map(function(b){b.destroy()});
+                        var t1 = Crafty.e("snake").makeBlock(200, 100, "e", "e", "head2").addComponent("head");
+                        var t2 = Crafty.e("snake").makeBlock(200 - BLOCKSIZE, 100, "e", "e", "neckleft2");
+                        var t3 = Crafty.e("snake").makeBlock(200 - BLOCKSIZE * 2, 100, "e", "e", "bodyright2");
+                        var t4 = Crafty.e("snake").makeBlock(200 - BLOCKSIZE * 3, 100, "e", "e", "bodyleft2");
+                        var t5 = Crafty.e("snake").makeBlock(200 - BLOCKSIZE * 4, 100, "e", "e", "bodyright2");
+                        var t6 = Crafty.e("snake").makeBlock(200 - BLOCKSIZE * 5, 100, "e", "e", "bodyleft2");
+                        var t7 = Crafty.e("snake").makeBlock(200 - BLOCKSIZE * 6, 100, "e", "e", "tailleft2");
+                        this.blocks = [t1, t2, t3, t4, t5, t6, t7];
                         Timer.stop();
                         this.delay(function(){
                             this.lives -= 1;
@@ -275,7 +285,6 @@ window.onload = function(){
                             FEEDS.push("hedgehog");
                           }
                       };
-                      console.log(FEEDS);
                     } else {
                       this.lives -= 1;
                       //create a new snake
