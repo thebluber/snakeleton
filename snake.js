@@ -120,29 +120,15 @@ window.onload = function(){
         }
       }; 
 
-      var title = Crafty.e("2D, DOM, Text, info")
+      var title = Crafty.e("2D, DOM, Text")
                     .attr({x: l3.x + l3.w + 5, y: 5, w: 120, h: 20})
                     .text("INVENTORY: ")
                     .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
-                    
-      var steakAmount = Crafty.e("2D, DOM, Text")
-                              .attr({x: title.x + title.w, y: 5, w: 25, h: 20})
-                              .text("0 ")
-                              .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
-      var steak = Crafty.e("2D, Canvas, steak")
-                        .attr({x: steakAmount.x + steakAmount.w, y: 5, w: 20, h: 20});
-      var rabbitAmount = Crafty.e("2D, DOM, Text")
-                              .attr({x: steak.x + steak.w, y: 5, w: 25, h: 20})
-                              .text("0 ")
-                              .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
-      var rabbit = Crafty.e("2D, Canvas, rabbit")
-                         .attr({x: rabbitAmount.x + rabbitAmount.w, y: 0, w: 30, h: 30});
-      //inventory update
-      var inventory = function(item){
-        var type     
-      };
+      Crafty.e("inventory").attr({item: title});             
+      
+      //generate feeds 
+      var feeds = ["rabbit", "steak"];
       var regenerateFeed = function() {
-        var feeds = ["rabbit", "steak"];
         var rand = Math.floor(Math.random() * 2);
         var feed = Crafty.e('feed').makeFeed(feeds[rand]);
         var randTime = Math.random() * 500;
@@ -162,9 +148,24 @@ window.onload = function(){
         var head = snake.blocks[0];
         if (feed.hit("head")) {
           //update score
-          snake.inventory[feed.type] += 1;
-          steakAmount.text(snake.inventory.steak + " ");
-          rabbitAmount.text(snake.inventory.rabbit + " ");
+          var inventory = Crafty("inventory");
+          var isItem = false;
+          for(var i = 0; i < inventory.length; i++){
+            isItem = isItem || Crafty(inventory[i]).item.has(feed.type);
+          }
+          if (isItem){
+            snake.inventory[feed.type] += 1;
+            var inventory = Crafty("inventory");
+            for (var i = 0; i < inventory.length; i++){
+              Crafty(inventory[i]).update(feed.type, snake.inventory[feed.type]);
+            };
+          } else {
+            var lastItem = Crafty(inventory[inventory.length - 1]);
+            Crafty.e("inventory").makeItem(lastItem.item.x + lastItem.item.w + 25, feed.type);
+            //trigger achievement
+            achievements[feed.type] = true;
+            Crafty.e('Achievement').text("ONOMNOM Discovery: " + feed.type);
+          }
           //disappear
           feed.fadeOut();
           //snake grows
@@ -180,6 +181,8 @@ window.onload = function(){
         } 
     }
 
+      //achievements
+      var achievements = {};
 
       var snake = Crafty.e("2D,Canvas,Collision")
                   .attr({blocks: [t1,t2,t3,t4,t5,t6,t7], lives: 3, inventory: {"rabbit": 0, "steak": 0}})
@@ -241,7 +244,17 @@ window.onload = function(){
                         collide(Crafty(feeds[i]), that);
                       };
                       //collision against self
-                      if (bite) { this.lives -= 1;}
+                      if (bite) { this.lives -= 1;};
+                      //achievements
+                      var steakText = this.inventory.steak + "th " + "STEAK!"
+                      if (!achievements[steakText] && this.inventory.steak != 0 && this.inventory.steak % 30 == 0){
+                        achievements[steakText] = true;
+                        Crafty.e("Achievement").text(steakText);
+                        if (this.lives < 3){
+                          this.lives += 1;
+                          return Crafty(Crafty("noHeart")[0]).removeComponent("noHeart").addComponent("heart");
+                        }
+                      }
                     } else {
                       this.lives -= 1;
                       //create a new snake

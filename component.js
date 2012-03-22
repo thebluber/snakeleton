@@ -1,15 +1,30 @@
     //inventory
     Crafty.c("inventory", {
       init: function(){
-        this.addComponent("2D,Canvas")
+        this.addComponent("2D,Canvas");
       },
-      makeItem: function(x, y, type){
+      makeItem: function(x, type){
+        var item = Crafty.e("2D, Canvas")
+                         .addComponent(type)
+                         .attr({x: x, y: 5, w: 20, h: 20});
         var amount = Crafty.e("2D, DOM, Text")
-                              .attr({x: title.x + title.w, y: 5, w: 25, h: 20})
+                              .attr({x: item.x - 25, y: 5, w: 25, h: 20})
                               .text("0 ")
                               .css({"color": "white", "text-align": "center", "font-style": "bold", "font-family": "Comic Sans MS"});
-          
-      }
+        this.attr({item: item, amount: amount});
+        if (type == "rabbit") {
+          this.item.w = 30;
+          this.item.h = 30;
+          this.item.y = 0;
+        }
+        return this;   
+      },
+      update: function(type, amount){
+        if (this.item.has(type)){
+          this.amount.text(amount + " ");
+        };
+        return this;
+      } 
     });
 
     //snake
@@ -105,19 +120,21 @@
   //achievements
   Crafty.c('Achievement',{
       init: function(){
-        this._image = Crafty.e('2D, DOM, Image, Tween').image('img/achievement.png').attr({x: 30, y: 30});
+        this._image = Crafty.e('2D, DOM, Image, Tween').image('img/achievement.png');
+        this._image.attr({x: (WIDTH / 2) - (this._image.w / 2), y: 30});
+        console.log(this._image.x);
         this._text = "Set the Text";
         this._center = WIDTH / 2 - ((this._text.length * 15) / 2);
-        this._textElement = Crafty.e('2D, DOM, Text, Tween').text(this._text).textColor('#dacfca').attr({x: this._center, y: 110, w:400}).textFont({weight: 'bold', size: '20px', family: 'Arial'});
+        this._textElement = Crafty.e('2D, DOM, Text, Tween').text(this._text).textColor('#dacfca').attr({x: this._center, y: 110, w:400});
 
-        this._image.tween({alpha: 0.0}, 200);
-        this._textElement.tween({alpha: 0.0}, 200);
+        this._image.tween({alpha: 0.0}, 100);
+        this._textElement.tween({alpha: 0.0}, 100);
       },
 
       text: function(newText) {
         this._text = newText;
         this._center = WIDTH / 2 - ((this._text.length * 12) / 2) ;
-        this._textElement.attr({x: this._center}).text(this._text);
+        this._textElement.attr({x: this._center}).text(this._text).css({"font-size" : "150%", "font-family": "Impact"});
       }
      
     });
