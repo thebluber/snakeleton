@@ -1,7 +1,7 @@
 window.onload = function(){
     BLOCKSIZE = 20;
-    WIDTH = 44 * BLOCKSIZE;
-    HEIGHT = 28 * BLOCKSIZE;
+    WIDTH = 43 * BLOCKSIZE;
+    HEIGHT = 24 * BLOCKSIZE;
   //init Crafty
     Crafty.init(WIDTH, HEIGHT);
     //loading
@@ -10,9 +10,9 @@ window.onload = function(){
           Crafty.scene("main");
         });
         Crafty.background("#000");
-        Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 150, y: 120 })
-              .text("Loading")
-              .css({ "text-align": "center", "color": "white"});
+        Crafty.e("2D, DOM, Text").attr({ w: 150, h: 20, x: Crafty.viewport.width / 2 - 70, y: Crafty.viewport.height / 2 - 10})
+              .text("LOADING...")
+              .css({ "text-align": "center", "color": "white", "font-size": "300%", "font-style": "bold", "font-family": "Impact"});
          
       });
     
@@ -95,7 +95,7 @@ window.onload = function(){
       var t7 = Crafty.e("snake").makeBlock(150 - BLOCKSIZE * 6, 100, "e", "e", "tailleft2");
       //create a infobar for score
       var infoBar = Crafty.e("2D, Canvas, Color, Tween")
-                          .attr({x: 0, y: 0, w: WIDTH, h: 30})
+                          .attr({x: 0, y: 0, w: Crafty.viewport.width, h: 30})
                           .tween({alpha: 0.5}, 0)
                           .color('rgb(100, 100, 100)');
       //lives
@@ -214,10 +214,10 @@ window.onload = function(){
                       Crafty("feed").destroy();
                       var background = Crafty.e("2D, DOM, Tween, Image")
                                            .image("img/sssssnakeleton.png")
-                                           .attr({x: 0, y: -5, w: WIDTH, h: HEIGHT})
+                                           .attr({x: 0, y: -10, w: WIDTH, h: HEIGHT})
                                            .tween({alpha: 0.5}, 5);
                       var gameOver = Crafty.e("2D, DOM, Text, Tween")
-                                           .attr({x: 20, y: 50, w: WIDTH * 0.7, h: HEIGHT, fadeOut: false})
+                                           .attr({x: background.x + 30, y: background.h / 2 - 100, w: WIDTH * 0.7, h: HEIGHT, fadeOut: false})
                                            .text("GAME OVER")
                                            .css({"color": "white", "text-align": "left", "font-style": "bold", "font-family": "Impact", "font-size": "900%"})
                                            .bind("timerTick", function(e){
@@ -278,7 +278,7 @@ window.onload = function(){
                       };
                       //hedgehog appears
                       var hedgehogText = "NOOO A HEDGEHOG!"
-                      if (this.inventory.steak + this.inventory.rabbit == 1 && !achievements[hedgehogText]){
+                      if (this.inventory.steak + this.inventory.rabbit == 15 && !achievements[hedgehogText]){
                           Crafty.e("Achievement").text(hedgehogText);
                           achievements[hedgehogText] = true;
                           if (FEEDS.indexOf("hedgehog") == -1){
@@ -344,4 +344,7 @@ window.onload = function(){
       
                   
   };      
+
+          
+  
 }

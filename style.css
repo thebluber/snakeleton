@@ -1,0 +1,24 @@
+body, html {
+      font-family: Helvetica, Arial, sans-serif;
+      background-color: rgb(100,100,100);
+      /*
+ *      background-image:-webkit-radial-gradient(center center, circle farthest-corner, #444 0%, #222 100%);
+ *            background-image:-moz-radial-gradient(center center, circle farthest-corner, #444 0%, #222 100%);
+ *                  background-image:-o-radial-gradient(center center, circle farthest-corner, #444 0%, #222 100%);
+ *                        background-image:radial-gradient(center center, circle farthest-corner, #444 0%, #222 100%);
+ *                              */
+      min-height:100%;
+      padding:1px 0 0 0;
+      margin:-1px 0 0 0;
+    }
+    html{
+      height:100%;
+    }
+    #cr-stage {
+      border: 2px solid #FFF;
+      margin:0 auto;
+      font-family:"Overlock SC", Helvetica, Arial, sans-serif;
+      font-size:14px;
+      line-height:16px;
+      margin-top:30px;
+    }
