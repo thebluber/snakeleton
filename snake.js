@@ -1,4 +1,8 @@
 window.onload = function(){
+  
+    // Deactivate scrolling with arrow keys
+    document.onkeydown=function(){return event.keyCode!=38 && event.keyCode!=40}  
+
     BLOCKSIZE = 20;
     WIDTH = 43 * BLOCKSIZE;
     HEIGHT = 24 * BLOCKSIZE;
